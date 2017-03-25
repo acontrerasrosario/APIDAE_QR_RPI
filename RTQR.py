@@ -2,23 +2,13 @@ import zbar
 import datetime
 from PIL import Image
 import cv2
-import pyrebase
+import RegisterTime as time
 
 
-config = {
-  "apiKey": "TokenKey",
-  "authDomain": "ProjectId.firebaseapp.com",
-  "databaseURL": "https://projectID.firebaseio.com",
-  "storageBucket": "projectID.appspot.com"
-}
 
-firebase = pyrebase.initialize_app(config)
 
-auth = firebase.auth()
 
-user = auth.sign_in_with_email_and_password('adfbdfbdfb@gmail.com','gbildgbdfdfb')
 
-db = firebase.database()
 
 def main():
 
@@ -51,9 +41,12 @@ def main():
 
         # Prints data from image.
         for decoded in zbar_image:
-            #Testing way to upload data to firebase
-            db.child("historia/").child(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")).set(decoded.data)
+            data = {
+                "llegada":time.currentTime()
+            }
+            db.child('Records').child('S1').child(time.currentDate()).child('student').child(decoded.data).set(data)
 
+            print(decoded.data)
 
 
 if __name__ == "__main__":
