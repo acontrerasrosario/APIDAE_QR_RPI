@@ -1,21 +1,29 @@
 import zbar
-
+import datetime
 from PIL import Image
 import cv2
+import pyrebase
 
+
+config = {
+  "apiKey": "TokenKey",
+  "authDomain": "ProjectId.firebaseapp.com",
+  "databaseURL": "https://projectID.firebaseio.com",
+  "storageBucket": "projectID.appspot.com"
+}
+
+firebase = pyrebase.initialize_app(config)
+
+auth = firebase.auth()
+
+user = auth.sign_in_with_email_and_password('adfbdfbdfb@gmail.com','gbildgbdfdfb')
+
+db = firebase.database()
 
 def main():
-    """
-    A simple function that captures webcam video utilizing OpenCV. The video is then broken down into frames which
-    are constantly displayed. The frame is then converted to grayscale for better contrast. Afterwards, the image
-    is transformed into a numpy array using PIL. This is needed to create zbar image. This zbar image is then scanned
-    utilizing zbar's image scanner and will then print the decodeed message of any QR or bar code. To quit the program,
-    press "q".
-    :return:
-    """
 
-    # Begin capturing video. You can modify what video source to use with VideoCapture's argument. It's currently set
-    # to be your webcam.
+
+
     capture = cv2.VideoCapture(0)
 
     while True:
@@ -43,7 +51,9 @@ def main():
 
         # Prints data from image.
         for decoded in zbar_image:
-            print(decoded.data)
+            #Testing way to upload data to firebase
+            db.child("historia/").child(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")).set(decoded.data)
+
 
 
 if __name__ == "__main__":
