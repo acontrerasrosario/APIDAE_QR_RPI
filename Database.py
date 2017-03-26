@@ -11,6 +11,10 @@ auth = firebase.auth()
 user = auth.sign_in_with_email_and_password('acontrerasrosario@gmail.com', '123456')
 db = firebase.database()
 
+CurrentSection = None
+InitialHour = None
+EndHour = None
+
 # a list of sections available
 sectionsList = []
 
@@ -30,17 +34,20 @@ def sections():
 
 
 # returns all section of the DAY
-def sectionOfToday():
+def sectionOfToday(day):
     sections()
     final_result = None
     for xx in sectionsList:
         result = db.child('Section').child(xx).child('days').get()
         for x in result.val():
-            if x == time.currentDateName().upper():
+            if x == day:
                 final_result = db.child('Section').child(xx).get().key()
             else:
                 final_result = 'NO HAY CLASE HOY'
     return final_result
 
+
+#this will update the information of the Section that could be taking in the classroom
+def CurrentSectionInfo(Seccion):
 
 
