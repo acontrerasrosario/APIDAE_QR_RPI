@@ -28,3 +28,19 @@ def sections():
     for x in result.val():
         sectionsList.append(x)
 
+
+# returns all section of the DAY
+def seccionOfToday():
+    sections()
+    resultado_final = None
+    for xx in sectionsList:
+        result = db.child('Section').child(xx).child('days').get()
+        for x in result.val():
+            if x == time.currentDateName().upper():
+                resultado_final = db.child('Section').child(xx).get().key()
+            else:
+                resultado_final = 'NO HAY CLASE HOY'
+    return resultado_final
+
+
+
