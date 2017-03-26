@@ -30,17 +30,17 @@ def sections():
 
 
 # returns all section of the DAY
-def seccionOfToday():
+def sectionOfToday():
     sections()
-    resultado_final = None
+    final_result = None
     for xx in sectionsList:
         result = db.child('Section').child(xx).child('days').get()
         for x in result.val():
             if x == time.currentDateName().upper():
-                resultado_final = db.child('Section').child(xx).get().key()
+                final_result = db.child('Section').child(xx).get().key()
             else:
-                resultado_final = 'NO HAY CLASE HOY'
-    return resultado_final
+                final_result = 'NO HAY CLASE HOY'
+    return final_result
 
 
 
