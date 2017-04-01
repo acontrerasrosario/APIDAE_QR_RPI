@@ -7,7 +7,7 @@ def currentTime():
 
 # return the name of the day
 def currentDateName():
-    return datetime.datetime.today().strftime("%A")
+    return datetime.datetime.today().strftime("%A").upper()
 
 
 def currentDate():

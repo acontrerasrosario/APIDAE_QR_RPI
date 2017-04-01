@@ -1,5 +1,10 @@
 import pyrebase
+from collections import OrderedDict
 import RegisterTime as time
+import thread
+import time as timer
+
+
 config = {
       "apiKey": "AIzaSyAVJ5yBzKo2wDpm6fPtAPLmMEydVTz0GTk",
       "authDomain": "apidae-85302.firebaseapp.com",
@@ -17,6 +22,12 @@ EndHour = None
 
 # a list of sections available
 sectionsList = []
+#
+secHoy = []
+
+
+
+
 
 # check if is the ID is a professor
 def isProfessor(id):
@@ -32,22 +43,40 @@ def sections():
     for x in result.val():
         sectionsList.append(x)
 
+#retorna el horario de la seccion
+def horarioClase(section):
+    result = OrderedDict(db.child('Section').child(section).child('days').child(time.currentDateName()).get().val())
+    incio = str(result.values()[0])
+    fin = str(result.values()[1])
+    return incio, fin
 
-# returns all section of the DAY
-def sectionOfToday(day):
-    sections()
-    final_result = None
-    for xx in sectionsList:
-        result = db.child('Section').child(xx).child('days').get()
-        for x in result.val():
-            if x == day:
-                final_result = db.child('Section').child(xx).get().key()
-            else:
-                final_result = 'NO HAY CLASE HOY'
-    return final_result
+# retorna una lista de las secciones de hoy (se va a llamar una vez)
+def sectionsOfToday():
+    today = time.currentDateName().upper()
+    global secHoy
+    try:
+
+        for section in sectionsList:
+            result = db.child('Section').child(section).child('days').get().val()
+            for day in result:
+                if(day == today):
+                    arreglo = [str(section), horarioClase(section)]
+                    secHoy.append(arreglo)
+            secHoy = sorted(secHoy, key=lambda sect: sect[1][0]) # organiza las secciones por la hora de inicio
+    except ValueError:
+        print "NO HAY SECCION PARA HOY"
 
 
-#this will update the information of the Section that could be taking in the classroom
-def CurrentSectionInfo(Seccion):
+def listar():
+        sections()
+        sectionsOfToday()
+        print secHoy
+
+# pruebas
+while True:
+    if (firebase == '20:34:25'):
+        listar()
+        timer.sleep(1)
+        print secHoy
 
 
