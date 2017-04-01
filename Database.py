@@ -74,7 +74,7 @@ def listar():
 
 # pruebas
 while True:
-    if (firebase == '20:34:25'):
+    if (time.currentTime() == '20:34:25'):
         listar()
         timer.sleep(1)
         print secHoy
