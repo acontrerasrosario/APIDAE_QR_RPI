@@ -31,7 +31,7 @@ secHoy = []
 
 # check if is the ID is a professor
 def isProfessor(id):
-    result = db.child('Persons').child(id).child('type').get().val()
+    result = db.child('PERSONS').child(id).child('TYPE').get().val()
     if(result != 1):
         return True
     else:
@@ -39,13 +39,13 @@ def isProfessor(id):
 
 # return all sections available in a list
 def sections():
-    result = db.child('Section').order_by_key().get()
+    result = db.child('SECTION').order_by_key().get()
     for x in result.val():
         sectionsList.append(x)
 
 #retorna el horario de la seccion
 def horarioClase(section):
-    result = OrderedDict(db.child('Section').child(section).child('days').child(time.currentDateName()).get().val())
+    result = OrderedDict(db.child('SECTION').child(section).child('DAYS').child(time.currentDateName()).get().val())
     incio = str(result.values()[0])
     fin = str(result.values()[1])
     return incio, fin
@@ -57,7 +57,7 @@ def sectionsOfToday():
     try:
 
         for section in sectionsList:
-            result = db.child('Section').child(section).child('days').get().val()
+            result = db.child('SECTION').child(section).child('DAYS').get().val()
             for day in result:
                 if(day == today):
                     arreglo = [str(section), horarioClase(section)]
@@ -70,24 +70,44 @@ def sectionsOfToday():
 # valida si el estudiante ya tiene hora de entrada o de salida
 def validarHistoria(id):
 
-    hora_llegada = (db.child('RECORDS').child('S1').child(time.currentDate()).child('STUDENT').child(id).child('ARRIVE').get().val())
-
-    hora_salida = (db.child('RECORDS').child('S1').child(time.currentDate()).child('STUDENT').child(id).child('LEFT').get().val())
-
     nombre = OrderedDict(db.child('PERSONS').child(id).get().val()).values()[4] + ' ' + OrderedDict(db.child('PERSONS').child(id).get().val()).values()[0]
+    if(isProfessor(id)):
+        hora_llegada = (db.child('RECORDS').child('S1').child(time.currentDate()).child('TEACHER').child(id).child('ARRIVE').get().val())
 
-    if(hora_llegada != None):
-        lapso_time = convertTimetoDecimal(hora_llegada) + 1800
+        hora_salida = (db.child('RECORDS').child('S1').child(time.currentDate()).child('TEACHER').child(id).child('LEFT').get().val())
 
-    if(hora_llegada == None) & (hora_salida == None):
-        db.child('RECORDS').child('S1').child(time.currentDate()).child('STUDENT').child(id).child('ARRIVE').set(time.currentTime())
-        print "Bienvenido " + nombre
+        if (hora_llegada != None):
+            lapso_time = convertTimetoDecimal(hora_llegada) + 3600 # le suma 1 hora a la llegada del profesor
 
-    elif(hora_salida == None) & (lapso_time <= convertTimetoDecimal(time.currentTime())):
-        db.child('RECORDS').child('S1').child(time.currentDate()).child('STUDENT').child(id).child('LEFT').set(time.currentTime())
+        if (hora_llegada == None) & (hora_salida == None):
+            db.child('RECORDS').child('S1').child(time.currentDate()).child('TEACHER').child(id).child('ARRIVE').set(time.currentTime())
+            print "Bienvenido " + nombre # aqui va a printear en la LCD RPI
+
+        elif (hora_salida == None) & (lapso_time <= convertTimetoDecimal(time.currentTime())):
+            db.child('RECORDS').child('S1').child(time.currentDate()).child('TEACHER').child(id).child('LEFT').set(time.currentTime())
+        else:
+            print "aun no puedes irte" # aqui va a printear en la LCD RPI
 
     else:
-        print "aun no puedes irte"
+        hora_llegada = (db.child('RECORDS').child('S1').child(time.currentDate()).child('STUDENT').child(id).child(
+            'ARRIVE').get().val())
+
+        hora_salida = (
+            db.child('RECORDS').child('S1').child(time.currentDate()).child('STUDENT').child(id).child(
+                'LEFT').get().val())
+
+        if(hora_llegada != None):
+            lapso_time = convertTimetoDecimal(hora_llegada) + 1800 # le suma 30 mins a la llegada del estudiante
+
+        if(hora_llegada == None) & (hora_salida == None):
+            db.child('RECORDS').child('S1').child(time.currentDate()).child('STUDENT').child(id).child('ARRIVE').set(time.currentTime())
+            print "Bienvenid@ " + nombre # aqui va a printear en la LCD RPI
+
+        elif(hora_salida == None) & (lapso_time <= convertTimetoDecimal(time.currentTime())):
+            db.child('RECORDS').child('S1').child(time.currentDate()).child('STUDENT').child(id).child('LEFT').set(time.currentTime())
+
+        else:
+            print "aun no puedes irte" # aqui va a printear en la LCD RPI
 
 
 
@@ -97,10 +117,10 @@ def listar():
         print secHoy
 
 
+
 def convertTimetoDecimal(t):
     (h,m,s) = t.split(':')
     result = int(h)* 3600 +int(m)*60 + int(s)
     return result
 
-
-validarHistoria(1061106)
+validarHistoria('105XXXX')
