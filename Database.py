@@ -67,16 +67,40 @@ def sectionsOfToday():
         print "NO HAY SECCION PARA HOY"
 
 
+# valida si el estudiante ya tiene hora de entrada o de salida
+def validarHistoria(id):
+
+    hora_llegada = (db.child('RECORDS').child('S1').child(time.currentDate()).child('STUDENT').child(id).child('ARRIVE').get().val())
+
+    hora_salida = (db.child('RECORDS').child('S1').child(time.currentDate()).child('STUDENT').child(id).child('LEFT').get().val())
+
+    nombre = OrderedDict(db.child('PERSONS').child(id).get().val()).values()[4] + ' ' + OrderedDict(db.child('PERSONS').child(id).get().val()).values()[0]
+
+    if(hora_llegada != None):
+        lapso_time = convertTimetoDecimal(hora_llegada) + 1800
+
+    if(hora_llegada == None) & (hora_salida == None):
+        db.child('RECORDS').child('S1').child(time.currentDate()).child('STUDENT').child(id).child('ARRIVE').set(time.currentTime())
+        print "Bienvenido " + nombre
+
+    elif(hora_salida == None) & (lapso_time <= convertTimetoDecimal(time.currentTime())):
+        db.child('RECORDS').child('S1').child(time.currentDate()).child('STUDENT').child(id).child('LEFT').set(time.currentTime())
+
+    else:
+        print "aun no puedes irte"
+
+
+
 def listar():
         sections()
         sectionsOfToday()
         print secHoy
 
-# pruebas
-while True:
-    if (time.currentTime() == '20:34:25'):
-        listar()
-        timer.sleep(1)
-        print secHoy
+
+def convertTimetoDecimal(t):
+    (h,m,s) = t.split(':')
+    result = int(h)* 3600 +int(m)*60 + int(s)
+    return result
 
 
+validarHistoria(1061106)
