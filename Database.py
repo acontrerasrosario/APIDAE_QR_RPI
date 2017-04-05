@@ -28,7 +28,6 @@ secHoy = []
 
 
 
-
 # check if is the ID is a professor
 def isProfessor(id):
     result = db.child('PERSONS').child(id).child('TYPE').get().val()
@@ -41,14 +40,17 @@ def isProfessor(id):
 def sections():
     result = db.child('SECTION').order_by_key().get()
     for x in result.val():
-        sectionsList.append(x)
+        sectionsList.append(str(x))
 
 #retorna el horario de la seccion
 def horarioClase(section):
-    result = OrderedDict(db.child('SECTION').child(section).child('DAYS').child(time.currentDateName()).get().val())
-    incio = str(result.values()[0])
-    fin = str(result.values()[1])
-    return incio, fin
+    try:
+        result = OrderedDict(db.child('SECTION').child(section).child('DAYS').child(time.currentDateName()).get().val())
+        incio = str(result.values()[0])
+        fin = str(result.values()[1])
+        return incio, fin
+    except ValueError:
+        print "NO EXISTE CLASES HOY"
 
 # retorna una lista de las secciones de hoy (se va a llamar una vez)
 def sectionsOfToday():
@@ -59,7 +61,7 @@ def sectionsOfToday():
         for section in sectionsList:
             result = db.child('SECTION').child(section).child('DAYS').get().val()
             for day in result:
-                if(day == today):
+                if(str(day) == today):
                     arreglo = [str(section), horarioClase(section)]
                     secHoy.append(arreglo)
             secHoy = sorted(secHoy, key=lambda sect: sect[1][0]) # organiza las secciones por la hora de inicio
@@ -81,7 +83,7 @@ def validarHistoria(id):
 
         if (hora_llegada == None) & (hora_salida == None):
             db.child('RECORDS').child('S1').child(time.currentDate()).child('TEACHER').child(id).child('ARRIVE').set(time.currentTime())
-            print "Bienvenido " + nombre # aqui va a printear en la LCD RPI
+            print "Bienvenid@ " + nombre # aqui va a printear en la LCD RPI
 
         elif (hora_salida == None) & (lapso_time <= convertTimetoDecimal(time.currentTime())):
             db.child('RECORDS').child('S1').child(time.currentDate()).child('TEACHER').child(id).child('LEFT').set(time.currentTime())
@@ -114,13 +116,31 @@ def validarHistoria(id):
 def listar():
         sections()
         sectionsOfToday()
-        print secHoy
 
 
 
+# convierte de hora a decimal
 def convertTimetoDecimal(t):
     (h,m,s) = t.split(':')
-    result = int(h)* 3600 +int(m)*60 + int(s)
+    result = int(h) * 3600 + int(m) * 60 + int(s)
     return result
 
-validarHistoria('105XXXX')
+def nextClass():
+    listar()
+    last = secHoy[0]
+    secHoy.remove(last)
+    CurrentSection = secHoy[0]
+
+def currentClass():
+    inicio_clase = convertTimetoDecimal(secHoy[0][1][0])
+    fin_clase = convertTimetoDecimal(secHoy[0][1][1])
+    hora_actual = convertTimetoDecimal(time.currentTime())
+    if(hora_actual >= inicio_clase) & (hora_actual < fin_clase):
+        CurrentSection = secHoy[0][0]
+        print CurrentSection
+    elif (len(secHoy) > 1):
+        nextClass()
+    else:
+        print 'NO MAS CLASE POR HOY'
+
+
