@@ -1,4 +1,3 @@
-
 # import the necessary packages
 from picamera.array import PiRGBArray
 from picamera import PiCamera
@@ -6,15 +5,25 @@ import time
 import cv2
 from PIL import Image
 import zbar
+import lcddriver
+import RegisterTime as timer
+
+
+
+
 
 # initialize the camera and grab a reference to the raw camera capture
 camera = PiCamera()
 camera.resolution = (640, 480)
 camera.framerate = 32
 rawCapture = PiRGBArray(camera, size=(640, 480))
- 
+
 # allow the camera to warmup
 time.sleep(0.1)
+
+# Load the driver and set it to "display"
+# If you use something from the driver library use the "display." prefix first
+display = lcddriver.lcd()
  
 # capture frames from the camera
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
@@ -47,7 +56,13 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 	# Scans the zbar image.
         scanner = zbar.ImageScanner()
         scanner.scan(zbar_image)
-
+        
+        display.lcd_display_string(timer.currentDate(), 1)
+        
         # Prints data from image.
         for decoded in zbar_image:
-            print(decoded.data)
+                
+                display.lcd_display_string(decoded.data, 2)
+                time.sleep(2)
+                display.lcd_clear()
+            
