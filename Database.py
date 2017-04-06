@@ -83,12 +83,12 @@ def validarHistoria(id):
 
         if (hora_llegada == None) & (hora_salida == None):
             db.child('RECORDS').child('S1').child(time.currentDate()).child('TEACHER').child(id).child('ARRIVE').set(time.currentTime())
-            print "Bienvenid@ " + nombre # aqui va a printear en la LCD RPI
+            return "Bienvenid@ " + nombre # aqui va a printear en la LCD RPI
 
         elif (hora_salida == None) & (lapso_time <= convertTimetoDecimal(time.currentTime())):
             db.child('RECORDS').child('S1').child(time.currentDate()).child('TEACHER').child(id).child('LEFT').set(time.currentTime())
         else:
-            print "aun no puedes irte" # aqui va a printear en la LCD RPI
+            return "Aun no puedes irte" # aqui va a printear en la LCD RPI
 
     else:
         hora_llegada = (db.child('RECORDS').child('S1').child(time.currentDate()).child('STUDENT').child(id).child(
@@ -103,13 +103,13 @@ def validarHistoria(id):
 
         if(hora_llegada == None) & (hora_salida == None):
             db.child('RECORDS').child('S1').child(time.currentDate()).child('STUDENT').child(id).child('ARRIVE').set(time.currentTime())
-            print "Bienvenid@ " + nombre # aqui va a printear en la LCD RPI
+            return "Bienvenid@ " + nombre # aqui va a printear en la LCD RPI
 
         elif(hora_salida == None) & (lapso_time <= convertTimetoDecimal(time.currentTime())):
             db.child('RECORDS').child('S1').child(time.currentDate()).child('STUDENT').child(id).child('LEFT').set(time.currentTime())
 
         else:
-            print "aun no puedes irte" # aqui va a printear en la LCD RPI
+            return "Aun no puedes irte" # aqui va a printear en la LCD RPI
 
 
 
@@ -130,6 +130,7 @@ def nextClass():
     last = secHoy[0]
     secHoy.remove(last)
     CurrentSection = secHoy[0]
+    currentClass()
 
 def currentClass():
     inicio_clase = convertTimetoDecimal(secHoy[0][1][0])
@@ -137,10 +138,10 @@ def currentClass():
     hora_actual = convertTimetoDecimal(time.currentTime())
     if(hora_actual >= inicio_clase) & (hora_actual < fin_clase):
         CurrentSection = secHoy[0][0]
-        print CurrentSection
+        return CurrentSection
     elif (len(secHoy) > 1):
         nextClass()
     else:
-        print 'NO MAS CLASE POR HOY'
+        return 'NO HAY MAS SECCIONES POR HOY'
 
 

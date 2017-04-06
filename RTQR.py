@@ -7,10 +7,7 @@ from PIL import Image
 import zbar
 import lcddriver
 import RegisterTime as timer
-
-
-
-
+import Database as fb
 
 # initialize the camera and grab a reference to the raw camera capture
 camera = PiCamera()
@@ -52,17 +49,18 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 	if key == ord("q"):
 		break
 
+    if(fb.convertTimetoDecimal(timer.currentTime()) >=  fb.convertTimetoDecimal('18:00:00')) & (fb.convertTimetoDecimal(timer.currentTime()) <=  fb.convertTimetoDecimal('18:05:00')) :
+        fb.listar()
 
 	# Scans the zbar image.
         scanner = zbar.ImageScanner()
         scanner.scan(zbar_image)
         
         display.lcd_display_string(timer.currentDate(), 1)
-        
+        display.lcd_display_string(fb.currentClass(), 1)
         # Prints data from image.
         for decoded in zbar_image:
-                
-                display.lcd_display_string(decoded.data, 2)
+                display.lcd_display_string(fb.validarHistoria(decoded.data), 2)
                 time.sleep(2)
                 display.lcd_clear()
             
