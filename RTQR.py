@@ -22,6 +22,12 @@ time.sleep(0.1)
 # If you use something from the driver library use the "display." prefix first
 display = lcddriver.lcd()
  
+
+horabuffstart = fb.convertTimetoDecimal('11:00:00')
+horaA = fb.convertTimetoDecimal(timer.currentTime())
+if(horaA <= horabuffstart):
+	fb.listar() 
+ 
 # capture frames from the camera
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
 	# grab the raw NumPy array representing the image, then initialize the timestamp
@@ -36,31 +42,32 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 	rawCapture.truncate(0)
 
 	# Converts image to grayscale.
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+	gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        # Uses PIL to convert the grayscale image into a ndary array that ZBar can understand.
-        image = Image.fromarray(gray)
-        width, height = image.size
-        zbar_image = zbar.Image(width, height, 'Y800', image.tobytes())
+	# Uses PIL to convert the grayscale image into a ndary array that ZBar can understand.
+	image = Image.fromarray(gray)
+	width, height = image.size
+	zbar_image = zbar.Image(width, height, 'Y800', image.tobytes())
 
-        
- 
 	# if the `q` key was pressed, break from the loop
 	if key == ord("q"):
-		break
-
-    if(fb.convertTimetoDecimal(timer.currentTime()) >=  fb.convertTimetoDecimal('18:00:00')) & (fb.convertTimetoDecimal(timer.currentTime()) <=  fb.convertTimetoDecimal('18:05:00')) :
-        fb.listar()
+		break        
 
 	# Scans the zbar image.
         scanner = zbar.ImageScanner()
         scanner.scan(zbar_image)
-        
+     
         display.lcd_display_string(timer.currentDate(), 1)
-        display.lcd_display_string(fb.currentClass(), 1)
-        # Prints data from image.
-        for decoded in zbar_image:
-                display.lcd_display_string(fb.validarHistoria(decoded.data), 2)
-                time.sleep(2)
-                display.lcd_clear()
+        display.lcd_display_string(fb.nombreMateria(fb.currentClass()), 2)
+    # Prints data from image.
+	for decoded in zbar_image:
+		display.lcd_clear()
+		display.lcd_display_string("Validando..." , 1)
+		display.lcd_display_string("Espere un momento." , 2)
+		display.lcd_clear()
+		display.lcd_display_string(fb.validarHistoria(decoded.data),2)
+		time.sleep(1)
+		display.lcd_clear()
             
+
+
